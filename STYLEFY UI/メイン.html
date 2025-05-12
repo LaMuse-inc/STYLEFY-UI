@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STYLEFY | 骨格ストレート向けファッションアプリ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* カラーパレット */
+            --primary-color: #121212; /* 濃いグレーブラック (旧: #F8BBD0 薄いピンク) */
+            --secondary-color: #F9F9F9; /* オフホワイト (旧: #FFF5F5 薄いピンクベージュ) */
+            --accent-color: #333333; /* ダークグレー (旧: #FF9EB5 ソフトコーラルピンク) */
+            --light-gray: #FFFFFF; /* 純白背景色 (旧: #FBF7F7) */
+            --mid-gray: #888888; /* ミディアムグレー (旧: #AAAAAA) */
+            --dark-gray: #212121; /* ほぼ黒 (旧: #4A4A4A) */
+            
+            /* ニュートラル */
+            --gray-100: #FFFFFF; /* 白 */
+            --gray-200: #F2F2F2; /* 明るいグレー */
+            --gray-300: #E5E5E5; /* グレー */
+            --gray-400: #D1D1D1; /* 中間グレー */
+            --gray-500: #9E9E9E; /* ミドルグレー */
+            --gray-600: #757575; /* ダークグレー */
+            --gray-700: #424242; /* 非常に暗いグレー */
+            --gray-800: #212121; /* ほぼ黒 */
+            --gray-900: #121212; /* 最も暗い色 */
+            
+            /* アクセント色の薄いバージョン */
+            --primary-light: rgba(18, 18, 18, 0.05); /* 薄いグレー */
+            --accent-light: rgba(51, 51, 51, 0.05); /* 薄いグレー */
+            
+            /* ボタン高さ */
+            --button-height-large: 48px;
+            --button-height-medium: 40px;
+            --button-height-small: 32px;
+            
+            /* 角丸半径 */
+            --radius-small: 4px; /* よりシャープで現代的な角丸 */
+            --radius-medium: 6px;
+            --radius-large: 8px;
+            --radius-xl: 12px;
+            --radius-full: 9999px;
+            
+            /* スペーシング */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-xxl: 24px;
+            
+            /* トランジション */
+            --transition-fast: 150ms;
+            --transition-normal: 250ms;
+            --transition-slow: 350ms;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            line-height: 1.5;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 500;
+            letter-spacing: -0.02em;
+        }
+        
+        button, input, select, textarea {
+            font-family: inherit;
+            font-size: inherit;
+        }
+        
+        .app-container {
+            max-width: 430px;
+            height: 100vh;
+            margin: 0 auto;
+            background-color: var(--light-gray);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--gray-300);
+            border-radius: 0; /* シャープなエッジ */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px 8px;
+            background-color: white;
+            border-top-left-radius: 0; /* シャープなエッジ */
+            border-top-right-radius: 0; /* シャープなエッジ */
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+        
+        .screen {
+            display: none;
+            height: calc(100% - 140px);
+            overflow-y: auto;
+            background-color: var(--light-gray);
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            position: absolute;
+            top: 48px;
+            left: 0;
+            right: 0;
+            bottom: 56px;
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        
+        .screen::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .screen.active {
+            display: block;
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .screen.exit {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+        
+        /* ナビゲーションバー */
+        .nav-bar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 56px;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid var(--gray-200);
+            border-bottom-left-radius: 0; /* シャープな仕上がり */
+            border-bottom-right-radius: 0; /* シャープな仕上がり */
+            box-shadow: none; /* 影なし */
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            padding: var(--spacing-xs) 0;
+        }
+        
+        .nav-icon {
+            font-size: 22px; /* 少し小さく */
+            color: var(--mid-gray);
+            margin-bottom: 2px;
+        }
+        
+        .nav-label {
+            font-size: 10px;
+            color: var(--mid-gray);
+        }
+        
+        .nav-item.active .nav-icon,
+        .nav-item.active .nav-label {
+            color: var(--primary-color);
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 25%;
+            width: 50%;
+            height: 2px;
+            background-color: var(--primary-color);
+            border-radius: 0; /* シャープな線 */
+        }
+        
+        /* ボタンスタイル */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+            border: none;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            height: var(--button-height-large);
+            border-radius: var(--radius-small);
+            padding: 0 var(--spacing-xl);
+            min-width: 120px;
+            box-shadow: none; /* フラットデザイン */
+        }
+        
+        .btn-primary:active {
+            transform: scale(0.98);
+            background-color: #2C2C2C; /* 押された時のカラー */
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary-color);
+            border: 1px solid var(--gray-300); /* よりミニマルな境界線 */
+            height: var(--button-height-large);
+            border-radius: var(--radius-small);
+            padding: 0 var(--spacing-xl);
+            min-width: 120px;
+        }
+        
+        .btn-secondary:active {
+            transform: scale(0.98);
+            background-color: var(--gray-200);
+        }
+        
+        .btn-text {
+            background-color: transparent;
+            color: var(--primary-color);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .btn-text:active {
+            transform: translateY(1px);
+            opacity: 0.8;
+        }
+        
+        .btn-text::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 1px;
+            background-color: var(--primary-color);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        
+        .btn-text:hover::after {
+            width: 80%;
+        }
+        
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            color: var(--gray-600);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-icon:active {
+            transform: scale(0.95);
+            background-color: var(--gray-200);
+        }
+        
+        /* カードスタイル */
+        .card {
+            background-color: white;
+            border-radius: var(--radius-small);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            padding: var(--spacing-lg);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .card-item {
+            background-color: white;
+            border-radius: var(--radius-small);
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .card-item:active {
+            transform: scale(1.02);
+        }
+        
+        .card-img {
+            width: 100%;
+            aspect-ratio: 1/1.3;
+            object-fit: cover;
+        }
+        
+        .card-content {
+            padding: var(--spacing-md);
+        }
+        
+        .card-title {
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--gray-600);
+        }
+        
+        /* フォーム要素 */
+        .input-field {
+            background-color: var(--gray-100);
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-small);
+            padding: 0 var(--spacing-lg);
+            height: 44px;
+            width: 100%;
+            color: var(--dark-gray);
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .input-field::placeholder {
+            color: var(--mid-gray);
+        }
+        
+        /* チャットスタイル */
+        .chat-bubble {
+            padding: var(--spacing-md) var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+            max-width: 85%;
+            border-radius: var(--radius-medium);
+        }
+        
+        .chat-bubble.user {
+            align-self: flex-end;
+            background-color: var(--accent-light);
+            border-radius: var(--radius-medium) var(--radius-medium) var(--spacing-xs) var(--radius-medium);
+            margin-left: auto;
+        }
+        
+        .chat-bubble.ai {
+            align-self: flex-start;
+            background-color: var(--gray-100);
+            border-radius: var(--radius-medium) var(--radius-medium) var(--radius-medium) var(--spacing-xs);
+            position: relative;
+        }
+        
+        .chat-bubble.ai::before {
+            content: '';
+            width: 24px;
+            height: 24px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%239370DB"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-4-8c0 .55.45 1 1 1s1-.45 1-1-.45-1-1-1-1 .45-1 1zm4-4c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2h2c0-2.21-1.79-4-4-4zm4 7c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1z"/></svg>');
+            background-size: contain;
+            position: absolute;
+            top: -12px;
+            left: 12px;
+            opacity: 0.7;
+        }
+        
+        /* モーダル */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-normal);
+        }
+        
+        .modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: white;
+            width: 100%;
+            max-width: 430px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding-bottom: 20px;
+            transform: translateY(100%);
+            transition: transform var(--transition-normal);
+        }
+        
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            padding: var(--spacing-xl) var(--spacing-xl);
+            border-bottom: 1px solid var(--gray-200);
+            position: relative;
+        }
+        
+        .modal-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            position: absolute;
+            right: var(--spacing-lg);
+            top: var(--spacing-lg);
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--gray-500);
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: var(--spacing-xl);
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        /* 共通クラス */
+        .container {
+            padding: var(--spacing-lg);
+        }
+        
+        .flex {
+            display: flex;
+        }
+        
+        .flex-col {
+            flex-direction: column;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .justify-center {
+            justify-content: center;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .w-full {
+            width: 100%;
+        }
+        
+        .mt-1 { margin-top: var(--spacing-xs); }
+        .mt-2 { margin-top: var(--spacing-sm); }
+        .mt-3 { margin-top: var(--spacing-md); }
+        .mt-4 { margin-top: var(--spacing-lg); }
+        .mt-6 { margin-top: var(--spacing-xl) * 1.5; }
+        
+        .mb-1 { margin-bottom: var(--spacing-xs); }
+        .mb-2 { margin-bottom: var(--spacing-sm); }
+        .mb-3 { margin-bottom: var(--spacing-md); }
+        .mb-4 { margin-bottom: var(--spacing-lg); }
+        .mb-6 { margin-bottom: var(--spacing-xl) * 1.5; }
+        
+        .mr-1 { margin-right: var(--spacing-xs); }
+        .mr-2 { margin-right: var(--spacing-sm); }
+        .mr-3 { margin-right: var(--spacing-md); }
+        .mr-4 { margin-right: var(--spacing-lg); }
+        
+        .ml-1 { margin-left: var(--spacing-xs); }
+        .ml-2 { margin-left: var(--spacing-sm); }
+        .ml-3 { margin-left: var(--spacing-md); }
+        .ml-4 { margin-left: var(--spacing-lg); }
+        .ml-auto { margin-left: auto; }
+        
+        /* アニメーション */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); }
+            to { transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease forwards;
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease forwards;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* バッジ */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--dark-gray);
+        }
+        
+        .badge-primary {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+        
+        .badge-warning {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--dark-gray);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: var(--primary-color);
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+        
+        /* ヘッダー */
+        .header {
+            padding: var(--spacing-lg);
+            background-color: white;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            letter-spacing: -0.03em;
+        }
+        
+        .header-subtitle {
+            font-size: 14px;
+            color: var(--mid-gray);
+            margin-top: 2px;
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="status-bar">
+            <span>19:41</span>
+            <div class="flex items-center">
+                <i class="fas fa-signal mr-2"></i>
+                <i class="fas fa-wifi mr-2"></i>
+                <i class="fas fa-battery-three-quarters"></i>
+            </div>
+        </div>
+
+        <!-- スプラッシュ画面 -->
+        <div id="splash-screen" class="screen active">
+            <div class="flex items-center justify-center" style="height: 100%;">
+                <div class="text-center">
+                    <div class="logo" style="font-size: 32px; font-weight: 300; color: var(--primary-color); letter-spacing: 5px; text-transform: uppercase;">
+                        STYLEFY
+                    </div>
+                    <p class="mt-3" style="color: var(--mid-gray); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; font-weight: 400;">Sophisticated Wardrobe</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ウェルカム画面 -->
+        <div id="welcome-screen" class="screen">
+            <div class="flex flex-col" style="height: 100%;">
+                <div style="flex: 1; background-image: url('images/ベージュテーラードコート.png'); background-size: cover; background-position: center;"></div>
+                <div class="container" style="background-color: white; margin-top: -24px; padding-bottom: 48px;">
+                    <h1 class="header-title mt-4 mb-2" style="font-size: 24px; font-weight: 300; letter-spacing: 1px; text-transform: uppercase;">洗練された<br>スタイリング</h1>
+                    <p class="mb-6" style="color: var(--gray-600);">骨格診断であなたに最適なファッションスタイルを見つけましょう</p>
+                    <button class="btn btn-primary w-full mb-3">骨格診断をはじめる</button>
+                    <button class="btn btn-text w-full">すでにアカウントをお持ちの方</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 骨格診断画面 -->
+        <div id="diagnosis-screen" class="screen">
+            <div class="header">
+                <div class="flex items-center">
+                    <button class="btn-icon mr-3">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h1 class="header-title">骨格診断</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <!-- プログレスバー -->
+                <div class="progress mb-4" style="height: 4px; background-color: var(--gray-200); border-radius: 2px; overflow: hidden;">
+                    <div style="width: 30%; height: 100%; background-color: var(--primary-color);"></div>
+                </div>
+                
+                <h2 class="mb-4" style="font-size: 20px; font-weight: 600; text-align: center;">あなたの骨格タイプは？</h2>
+                
+                <div class="flex flex-col">
+                    <div class="card-item mb-4" style="border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer;" onclick="selectBodyType('straight')">
+                        <div class="p-4 flex">
+                            <div style="width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; background-color: var(--gray-200); border-radius: var(--radius-medium); margin-right: 15px;">
+                                <div style="width: 3px; height: 45px; background-color: var(--primary-color); margin: 0 6px;"></div>
+                                <div style="width: 3px; height: 45px; background-color: var(--primary-color); margin: 0 6px;"></div>
+                            </div>
+                            <div style="flex: 1;">
+                                <h3 class="card-title mb-1" style="font-size: 17px;">ストレート</h3>
+                                <p style="color: var(--gray-600); font-size: 13px; margin-bottom: 5px;">直線的でスマートなシルエット</p>
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
+                                    <span style="font-size: 11px; background-color: var(--primary-light); color: var(--primary-color); padding: 2px 8px; border-radius: 10px;">ハリのある素材</span>
+                                    <span style="font-size: 11px; background-color: var(--primary-light); color: var(--primary-color); padding: 2px 8px; border-radius: 10px;">縦ライン</span>
+                                    <span style="font-size: 11px; background-color: var(--primary-light); color: var(--primary-color); padding: 2px 8px; border-radius: 10px;">すっきり</span>
+                                </div>
+                            </div>
+                            <div class="ml-3" style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--gray-300);" id="straight-select"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-item mb-4" style="border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer;" onclick="selectBodyType('wave')">
+                        <div class="p-4 flex">
+                            <div style="width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; background-color: var(--gray-200); border-radius: var(--radius-medium); margin-right: 15px;">
+                                <div style="width: 3px; height: 45px; background-color: var(--primary-color); margin: 0 6px; border-radius: 3px; transform: rotate(-8deg);"></div>
+                                <div style="width: 3px; height: 45px; background-color: var(--primary-color); margin: 0 6px; border-radius: 3px; transform: rotate(8deg);"></div>
+                            </div>
+                            <div style="flex: 1;">
+                                <h3 class="card-title mb-1" style="font-size: 17px;">ウェーブ</h3>
+                                <p style="color: var(--gray-600); font-size: 13px; margin-bottom: 5px;">メリハリのある女性らしいシルエット</p>
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
+                                    <span style="font-size: 11px; background-color: var(--primary-light); color: var(--primary-color); padding: 2px 8px; border-radius: 10px;">柔らかい素材</span>
+                                    <span style="font-size: 11px; background-color: var(--primary-light); color: var(--primary-color); padding: 2px 8px; border-radius: 10px;">曲線美</span>
+                                    <span style="font-size: 11px; background-color: var(--primary-light); color: var(--primary-color); padding: 2px 8px; border-radius: 10px;">優美</span>
+                                </div>
+                            </div>
+                            <div class="ml-3" style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--gray-300);" id="wave-select"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-item mb-6" style="border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, box-shadow 0.2s ease; cursor: pointer;" onclick="selectBodyType('natural')">
+                        <div class="p-4 flex">
+                            <div style="width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; background-color: var(--gray-200); border-radius: var(--radius-medium); margin-right: 15px;">
+                                <div style="width: 4px; height: 45px; background-color: var(--primary-color); border-radius: 4px; transform: rotate(-10deg);"></div>
+                                <div style="width: 4px; height: 45px; background-color: var(--primary-color); border-radius: 4px; transform: rotate(10deg);"></div>
+                            </div>
+                            <div style="flex: 1;">
+                                <h3 class="card-title mb-1" style="font-size: 17px;">ナチュラル</h3>
+                                <p style="color: var(--gray-600); font-size: 13px; margin-bottom: 5px;">丸みを帯びた柔らかなシルエット</p>
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
+                                    <span style="font-size: 11px; background-color: var(--primary-light); color: var(--primary-color); padding: 2px 8px; border-radius: 10px;">自然素材</span>
+                                    <span style="font-size: 11px; background-color: var(--primary-light); color: var(--primary-color); padding: 2px 8px; border-radius: 10px;">ゆったり</span>
+                                    <span style="font-size: 11px; background-color: var(--primary-light); color: var(--primary-color); padding: 2px 8px; border-radius: 10px;">柔らか</span>
+                                </div>
+                            </div>
+                            <div class="ml-3" style="width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--primary-color); background-color: var(--primary-color); display: flex; align-items: center; justify-content: center; color: white;" id="natural-select">
+                                <i class="fas fa-check" style="font-size: 12px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex">
+                    <button class="btn btn-secondary mr-2" style="flex: 1;">戻る</button>
+                    <button class="btn btn-primary" style="flex: 1; opacity: 0.6;" disabled>次へ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 診断結果画面 -->
+        <div id="result-screen" class="screen">
+            <div class="header">
+                <div class="flex items-center justify-center">
+                    <h1 class="header-title" style="text-transform: uppercase; letter-spacing: 1px; font-weight: 400;">診断結果</h1>
+                </div>
+            </div>
+            <div class="container">
+                <div class="card mb-4" style="padding: 0; border: none; box-shadow: 0 3px 15px rgba(0,0,0,0.08); background-color: white; border-radius: var(--radius-medium);">
+                    <div style="padding: 30px 20px; background: linear-gradient(135deg, var(--gray-800) 0%, var(--primary-color) 100%); border-radius: var(--radius-medium) var(--radius-medium) 0 0; position: relative; overflow: hidden; text-align: center;">
+                        <span style="position: absolute; top: 15px; right: 15px; background-color: white; color: var(--primary-color); font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">Perfect Match!</span>
+                        
+                        <h2 style="font-size: 28px; font-weight: 600; color: white; margin-bottom: 5px; letter-spacing: 1px;">骨格ストレート</h2>
+                        <p style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 20px;">あなたの体型診断結果</p>
+                        
+                        <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                            <div style="width: 3px; height: 100px; background-color: white; margin: 0 10px;"></div>
+                            <div style="width: 3px; height: 100px; background-color: white; margin: 0 10px;"></div>
+                        </div>
+                        
+                        <div style="text-align: center; background-color: rgba(255,255,255,0.15); padding: 8px 20px; border-radius: 30px; margin: 0 auto; max-width: 220px;">
+                            <p style="color: white; font-weight: 500; font-size: 14px; margin: 0;">スタイリッシュでエレガントな印象</p>
+                        </div>
+                    </div>
+                    
+                    <div style="padding: 25px;">
+                        <div style="margin-bottom: 25px;">
+                            <p style="color: var(--gray-700); font-weight: 400; line-height: 1.7; font-size: 15px; text-align: center;">
+                                縦のラインが強調される「骨格ストレート」タイプは、ハリのあるしっかりとした素材と直線的なデザインが魅力を引き出します。
+                            </p>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px;">
+                            <div style="text-align: center; background-color: var(--gray-100); padding: 15px 10px; border-radius: var(--radius-medium);">
+                                <i class="fas fa-tshirt" style="color: var(--primary-color); font-size: 22px; margin-bottom: 8px;"></i>
+                                <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 5px;">素材</h4>
+                                <p style="font-size: 12px; color: var(--gray-600); line-height: 1.5;">ハリのある素材<br>スムースな素材</p>
+                            </div>
+                            <div style="text-align: center; background-color: var(--gray-100); padding: 15px 10px; border-radius: var(--radius-medium);">
+                                <i class="fas fa-ruler-vertical" style="color: var(--primary-color); font-size: 22px; margin-bottom: 8px;"></i>
+                                <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 5px;">シルエット</h4>
+                                <p style="font-size: 12px; color: var(--gray-600); line-height: 1.5;">ストレートライン<br>縦長シルエット</p>
+                            </div>
+                            <div style="text-align: center; background-color: var(--gray-100); padding: 15px 10px; border-radius: var(--radius-medium);">
+                                <i class="fas fa-tags" style="color: var(--primary-color); font-size: 22px; margin-bottom: 8px;"></i>
+                                <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 5px;">おすすめ</h4>
+                                <p style="font-size: 12px; color: var(--gray-600); line-height: 1.5;">テーラードジャケット<br>チェスターコート</p>
+                            </div>
+                        </div>
+                        
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <p style="color: var(--gray-600); font-weight: 400; font-size: 14px;">
+                                アカウント登録して、あなた専用の<br>スタイリングアドバイスを受け取りましょう
+                            </p>
+                        </div>
+                        
+                        <button class="btn btn-primary w-full" style="height: 44px; font-weight: 600; letter-spacing: 0.5px;">アカウント登録して詳細を見る</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- アカウント登録画面 -->
+        <div id="signup-screen" class="screen">
+            <div class="header">
+                <div class="flex items-center">
+                    <button class="btn-icon mr-3">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h1 class="header-title">アカウント登録</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <p class="mb-4" style="color: var(--gray-600);">骨格ストレートタイプに合わせたパーソナルスタイリングを受け取りましょう</p>
+                
+                <div class="mb-4">
+                    <label for="email" style="display: block; margin-bottom: var(--spacing-xs); font-weight: 500;">メールアドレス</label>
+                    <input type="email" id="email" class="input-field" placeholder="example@mail.com">
+                </div>
+                
+                <div class="mb-4">
+                    <label for="password" style="display: block; margin-bottom: var(--spacing-xs); font-weight: 500;">パスワード</label>
+                    <input type="password" id="password" class="input-field" placeholder="8文字以上で入力">
+                </div>
+                
+                <div class="mb-4">
+                    <div class="flex items-center">
+                        <div style="width: 20px; height: 20px; border-radius: 4px; border: 2px solid var(--gray-300); margin-right: var(--spacing-sm);"></div>
+                        <p style="font-size: 14px; color: var(--gray-600);">
+                            <a href="#" style="color: var(--primary-color);">利用規約</a>と<a href="#" style="color: var(--primary-color);">プライバシーポリシー</a>に同意します
+                        </p>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary w-full mb-4">登録する</button>
+                
+                <div class="text-center mb-4">
+                    <p style="color: var(--gray-500); font-size: 14px;">または</p>
+                </div>
+                
+                <div class="flex justify-center mb-4">
+                    <button class="btn-icon mr-3" style="background-color: white;">
+                        <i class="fab fa-google" style="color: #DB4437;"></i>
+                    </button>
+                    <button class="btn-icon mr-3" style="background-color: white;">
+                        <i class="fab fa-apple" style="color: #000000;"></i>
+                    </button>
+                    <button class="btn-icon" style="background-color: white;">
+                        <i class="fab fa-facebook-f" style="color: #4267B2;"></i>
+                    </button>
+                </div>
+                
+                <div class="text-center">
+                    <button class="btn btn-text">すでにアカウントをお持ちの方</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ログイン画面 -->
+        <div id="login-screen" class="screen">
+            <div class="header">
+                <div class="flex items-center">
+                    <button class="btn-icon mr-3">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h1 class="header-title">ログイン</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="mb-4">
+                    <label for="login-email" style="display: block; margin-bottom: var(--spacing-xs); font-weight: 500;">メールアドレス</label>
+                    <input type="email" id="login-email" class="input-field" placeholder="example@mail.com">
+                </div>
+                
+                <div class="mb-2">
+                    <label for="login-password" style="display: block; margin-bottom: var(--spacing-xs); font-weight: 500;">パスワード</label>
+                    <input type="password" id="login-password" class="input-field" placeholder="パスワードを入力">
+                </div>
+                
+                <div class="text-right mb-4">
+                    <button class="btn btn-text" style="padding: var(--spacing-xs) 0; font-size: 14px;">パスワードを忘れた場合</button>
+                </div>
+                
+                <button class="btn btn-primary w-full mb-4">ログイン</button>
+                
+                <div class="text-center mb-4">
+                    <p style="color: var(--gray-500); font-size: 14px;">または</p>
+                </div>
+                
+                <div class="flex justify-center mb-4">
+                    <button class="btn-icon mr-3" style="background-color: white;">
+                        <i class="fab fa-google" style="color: #DB4437;"></i>
+                    </button>
+                    <button class="btn-icon mr-3" style="background-color: white;">
+                        <i class="fab fa-apple" style="color: #000000;"></i>
+                    </button>
+                    <button class="btn-icon" style="background-color: white;">
+                        <i class="fab fa-facebook-f" style="color: #4267B2;"></i>
+                    </button>
+                </div>
+                
+                <div class="text-center">
+                    <button class="btn btn-text">アカウントをお持ちでない方</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ホーム画面 (AIスタイリスト) -->
+        <div id="home-screen" class="screen">
+            <div class="header" style="box-shadow: none; border-bottom: none; padding-bottom: 0;">
+                <h1 class="header-title" style="text-transform: uppercase; letter-spacing: 2px; font-weight: 300; font-size: 18px;">STYLEFY</h1>
+            </div>
+            
+            <div class="container">
+                <!-- ユーザー情報 -->
+                <div class="flex items-center justify-between mb-4" style="padding-bottom: 15px; border-bottom: 1px solid var(--gray-200);">
+                    <div class="flex items-center">
+                        <div style="width: 36px; height: 36px; background-color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 300; letter-spacing: 1px;">A</div>
+                        <div class="ml-2">
+                            <h2 style="font-weight: 400; font-size: 14px; letter-spacing: 0.5px;">Aiko</h2>
+                        </div>
+                    </div>
+                    <div class="badge badge-primary" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">骨格ストレート</div>
+                </div>
+                
+                <!-- メイン画像フォーカス -->
+                <div class="card-item mb-5" style="border-radius: 0; border: none; box-shadow: none;">
+                    <div style="position: relative;">
+                        <img src="images/ベージュテーラードコート.png" alt="今日のおすすめコーデ" style="width: 100%; height: 420px; object-fit: cover; border-radius: 0;">
+                        <div style="position: absolute; bottom: 16px; right: 16px; background-color: var(--light-gray); color: var(--primary-color); width: 50px; height: 50px; border-radius: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 400; letter-spacing: 0.5px;">
+                            <span style="font-size: 16px;">95%</span>
+                        </div>
+                    </div>
+                    <div style="padding: var(--spacing-lg) 0 var(--spacing-md) 0;">
+                        <h3 style="font-weight: 400; font-size: 16px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">ベージュテーラードコート</h3>
+                        <div class="flex">
+                            <button class="btn btn-secondary" style="flex: 1; margin-right: var(--spacing-sm); font-size: 12px; height: 40px; text-transform: uppercase; letter-spacing: 1px;">
+                                <i class="fas fa-tshirt mr-1"></i> 試着
+                            </button>
+                            <button class="btn btn-primary" style="flex: 1; font-size: 12px; height: 40px; text-transform: uppercase; letter-spacing: 1px;" onclick="openModal('storage-limit-modal')">
+                                <i class="fas fa-heart mr-1"></i> 保存
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ホーム画面のAIスタイリスト相談部分 -->
+                <div style="position: relative; margin-bottom: var(--spacing-lg); border-top: 1px solid var(--gray-200); padding-top: 20px;">
+                    <input type="text" class="input-field" style="padding-right: 50px; padding-left: 50px; border-radius: 0; background-color: var(--light-gray); border: none; height: 50px;" placeholder="AIスタイリストに相談">
+                    <i class="fas fa-comment-alt" style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--gray-500);"></i>
+                    <button class="btn-icon" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); box-shadow: none; background-color: transparent; width: 36px; height: 36px;">
+                        <i class="fas fa-paper-plane" style="color: var(--primary-color);"></i>
+                    </button>
+                </div>
+                
+                <!-- 保存アイテム残量インジケーター -->
+                <div style="margin-top: auto; border-top: 1px solid var(--gray-200); padding-top: 20px;">
+                    <div class="flex items-center justify-between" style="margin-bottom: 6px;">
+                        <span style="font-size: 10px; color: var(--gray-600); text-transform: uppercase; letter-spacing: 1px;">保存容量</span>
+                        <span style="font-size: 10px; color: var(--gray-600); font-weight: 500;">27/30</span>
+                    </div>
+                    <div style="height: 1px; background-color: var(--gray-300); overflow: hidden;">
+                        <div style="width: 90%; height: 100%; background-color: var(--primary-color);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- コーデ検索画面 -->
+        <div id="search-screen" class="screen">
+            <div class="header">
+                <h1 class="header-title">コーデ検索</h1>
+            </div>
+            
+            <div class="container">
+                <div style="position: relative; margin-bottom: var(--spacing-lg);">
+                    <input type="text" class="input-field" style="padding-left: 40px;" placeholder="コーディネートを探す">
+                    <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--mid-gray);"></i>
+                </div>
+                
+                <div style="overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; white-space: nowrap; margin-bottom: var(--spacing-lg);" class="mb-2">
+                    <div style="display: inline-block; padding: 8px 16px; margin-right: 8px; background-color: var(--primary-color); color: white; border-radius: 20px; font-size: 14px;">すべて</div>
+                    <div style="display: inline-block; padding: 8px 16px; margin-right: 8px; background-color: white; color: var(--dark-gray); border-radius: 20px; font-size: 14px; border: 1px solid var(--gray-200);">トップス</div>
+                    <div style="display: inline-block; padding: 8px 16px; margin-right: 8px; background-color: white; color: var(--dark-gray); border-radius: 20px; font-size: 14px; border: 1px solid var(--gray-200);">アウター</div>
+                    <div style="display: inline-block; padding: 8px 16px; margin-right: 8px; background-color: white; color: var(--dark-gray); border-radius: 20px; font-size: 14px; border: 1px solid var(--gray-200);">ボトムス</div>
+                    <div style="display: inline-block; padding: 8px 16px; margin-right: 8px; background-color: white; color: var(--dark-gray); border-radius: 20px; font-size: 14px; border: 1px solid var(--gray-200);">ワンピース</div>
+                </div>
+                
+                <div class="mb-4">
+                    <h2 style="font-weight: 600; font-size: 18px; margin-bottom: var(--spacing-md);">骨格ストレートさんにおすすめ</h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md);">
+                        <div class="card-item">
+                            <img src="images/ベージュテーラードコート.png" alt="コーデ1" class="card-img">
+                            <div class="card-content">
+                                <h3 class="card-title">ベージュコート</h3>
+                                <p class="card-subtitle">骨格ストレート向け</p>
+                                <span class="badge badge-success mt-2">マッチ度 95%</span>
+                            </div>
+                        </div>
+                        <div class="card-item">
+                            <img src="images/カジュアルデニム.png" alt="コーデ2" class="card-img">
+                            <div class="card-content">
+                                <h3 class="card-title">カジュアルデニム</h3>
+                                <p class="card-subtitle">骨格ストレート向け</p>
+                                <span class="badge badge-success mt-2">マッチ度 92%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h2 style="font-weight: 600; font-size: 18px; margin-bottom: var(--spacing-md);">人気のコーディネート</h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md);">
+                        <div class="card-item">
+                            <img src="images/シンプルニット.png" alt="コーデ3" class="card-img">
+                            <div class="card-content">
+                                <h3 class="card-title">シンプルニット</h3>
+                                <p class="card-subtitle">骨格ストレート向け</p>
+                                <span class="badge badge-success mt-2">マッチ度 90%</span>
+                            </div>
+                        </div>
+                        <div class="card-item">
+                            <img src="images/トレンチコート.png" alt="コーデ4" class="card-img">
+                            <div class="card-content">
+                                <h3 class="card-title">トレンチコート</h3>
+                                <p class="card-subtitle">骨格ストレート向け</p>
+                                <span class="badge badge-success mt-2">マッチ度 88%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- バーチャル試着画面 -->
+        <div id="tryon-screen" class="screen">
+            <div class="header">
+                <h1 class="header-title">バーチャル試着</h1>
+                <p class="header-subtitle">骨格タイプに合わせた試着を体験</p>
+            </div>
+            
+            <div class="container">
+                <div class="card mb-4">
+                    <h2 style="font-weight: 600; font-size: 16px; margin-bottom: var(--spacing-md);">試着するアイテムを選択</h2>
+                    
+                    <div style="overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; white-space: nowrap; margin-bottom: var(--spacing-md);">
+                        <div style="display: inline-block; padding: 6px 14px; margin-right: 8px; background-color: var(--primary-color); color: white; border-radius: 16px; font-size: 13px;">トップス</div>
+                        <div style="display: inline-block; padding: 6px 14px; margin-right: 8px; background-color: white; color: var(--dark-gray); border-radius: 16px; font-size: 13px; border: 1px solid var(--gray-200);">アウター</div>
+                        <div style="display: inline-block; padding: 6px 14px; margin-right: 8px; background-color: white; color: var(--dark-gray); border-radius: 16px; font-size: 13px; border: 1px solid var(--gray-200);">ボトムス</div>
+                        <div style="display: inline-block; padding: 6px 14px; margin-right: 8px; background-color: white; color: var(--dark-gray); border-radius: 16px; font-size: 13px; border: 1px solid var(--gray-200);">ワンピース</div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-sm); margin-bottom: var(--spacing-md);">
+                        <div style="position: relative;">
+                            <img src="images/ベージュテーラードコート.png" alt="アイテム1" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: var(--radius-small); border: 2px solid var(--primary-color);">
+                            <div style="position: absolute; top: -5px; right: -5px; width: 20px; height: 20px; background-color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-check" style="font-size: 10px;"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <img src="images/カジュアルデニム.png" alt="アイテム2" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: var(--radius-small);">
+                        </div>
+                        <div>
+                            <img src="images/シンプルニット.png" alt="アイテム3" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: var(--radius-small);">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary w-full">試着する</button>
+                </div>
+                
+                <h2 style="font-weight: 600; font-size: 18px; margin-bottom: var(--spacing-md);">試着結果</h2>
+                
+                <div class="card-item" style="margin-bottom: var(--spacing-lg);">
+                    <img src="images/ベージュテーラードコート.png" alt="試着結果" style="width: 100%; height: 300px; object-fit: cover; border-radius: var(--radius-medium) var(--radius-medium) 0 0;">
+                    <div style="padding: var(--spacing-lg);">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 style="font-weight: 600; font-size: 18px;">ベージュコート</h3>
+                            <div>
+                                <i class="fas fa-star" style="color: #FFA502;"></i>
+                                <i class="fas fa-star" style="color: #FFA502;"></i>
+                                <i class="fas fa-star" style="color: #FFA502;"></i>
+                                <i class="fas fa-star" style="color: #FFA502;"></i>
+                                <i class="far fa-star" style="color: #FFA502;"></i>
+                            </div>
+                        </div>
+                        <p style="color: var(--gray-700); font-size: 14px; margin-bottom: var(--spacing-md);">
+                            このコートは骨格ストレートさんの縦のラインを美しく見せてくれます。ベルトでウエストマークするとさらに魅力を引き出せます。
+                        </p>
+                        <div class="flex">
+                            <button class="btn btn-secondary" style="flex: 1; margin-right: var(--spacing-sm); font-size: 14px; height: 40px;">
+                                <i class="fas fa-share-alt mr-1"></i> シェア
+                            </button>
+                            <button class="btn btn-primary" style="flex: 1; font-size: 14px; height: 40px;" onclick="openModal('storage-limit-modal')">
+                                <i class="fas fa-heart mr-1"></i> 保存
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="background-color: var(--primary-light); border: none; margin-bottom: var(--spacing-lg);">
+                    <div class="flex items-center">
+                        <i class="fas fa-lightbulb mr-2" style="color: var(--primary-color); font-size: 20px;"></i>
+                        <div>
+                            <h3 style="font-weight: 600; font-size: 16px;">骨格ストレートさんのポイント</h3>
+                            <p style="font-size: 14px; color: var(--gray-700);">
+                                すっきりとした縦のラインを強調すると、よりスタイリッシュに見えます。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-bottom: var(--spacing-lg);">
+                    <div class="flex items-center">
+                        <i class="fas fa-info-circle mr-2" style="color: var(--accent-color); font-size: 20px;"></i>
+                        <div>
+                            <p style="font-size: 14px; color: var(--gray-700);">
+                                無料プランの保存容量残り: <strong>3点</strong>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-2" style="height: 6px; background-color: var(--gray-200); border-radius: 3px; overflow: hidden;">
+                        <div style="width: 90%; height: 100%; background-color: var(--accent-color);"></div>
+                    </div>
+                </div>
+                
+                <div class="text-center" style="color: var(--mid-gray); font-size: 12px; margin-bottom: var(--spacing-xxl);">
+                    本日の試着：2/5回（無料プラン）
+                </div>
+            </div>
+        </div>
+
+        <!-- マイページ画面 -->
+        <div id="mypage-screen" class="screen">
+            <div class="header">
+                <h1 class="header-title">マイページ</h1>
+            </div>
+            
+            <div class="container">
+                <div class="card mb-4">
+                    <div class="flex items-center">
+                        <div style="width: 60px; height: 60px; background-color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: 500;">
+                            A
+                        </div>
+                        <div class="ml-3">
+                            <h2 style="font-weight: 600; font-size: 18px;">Aiko</h2>
+                            <p style="color: var(--mid-gray); font-size: 14px;">骨格タイプ: ストレート</p>
+                            <div class="badge badge-primary mt-1" style="font-size: 11px;">無料プラン</div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <p style="color: var(--gray-600); font-size: 14px; margin-bottom: 5px;">アイテム保存容量: 27/30点</p>
+                        <div style="height: 6px; background-color: var(--gray-200); border-radius: 3px; overflow: hidden;">
+                            <div style="width: 90%; height: 100%; background-color: var(--accent-color);"></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary w-full mt-3">プレミアムにアップグレード</button>
+                </div>
+                
+                <div class="mb-4" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md);">
+                    <div class="card text-center">
+                        <i class="fas fa-tshirt" style="color: var(--primary-color); font-size: 24px; margin-bottom: var(--spacing-sm);"></i>
+                        <h3 style="font-weight: 600; font-size: 16px; margin-bottom: var(--spacing-xs);">保存したコーデ</h3>
+                        <p style="color: var(--primary-color); font-size: 24px; font-weight: 700;">27</p>
+                    </div>
+                    <div class="card text-center">
+                        <i class="fas fa-comment-alt" style="color: var(--primary-color); font-size: 24px; margin-bottom: var(--spacing-sm);"></i>
+                        <h3 style="font-weight: 600; font-size: 16px; margin-bottom: var(--spacing-xs);">相談履歴</h3>
+                        <p style="color: var(--primary-color); font-size: 24px; font-weight: 700;">12</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h2 style="font-weight: 600; font-size: 18px; margin-bottom: var(--spacing-md);">お気に入りアイテム</h2>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-sm);">
+                        <img src="images/ベージュテーラードコート.png" alt="お気に入り1" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: var(--radius-medium);">
+                        <img src="images/カジュアルデニム.png" alt="お気に入り2" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: var(--radius-medium);">
+                        <img src="images/シンプルニット.png" alt="お気に入り3" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: var(--radius-medium);">
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h2 style="font-weight: 600; font-size: 18px; margin-bottom: var(--spacing-md);">設定</h2>
+                    <div class="card" style="padding: 0;">
+                        <div style="padding: var(--spacing-md); display: flex; align-items: center; border-bottom: 1px solid var(--gray-200);">
+                            <i class="fas fa-user-circle mr-3" style="color: var(--gray-500); font-size: 20px;"></i>
+                            <span style="flex: 1;">アカウント設定</span>
+                            <i class="fas fa-chevron-right" style="color: var(--gray-400); font-size: 14px;"></i>
+                        </div>
+                        <div style="padding: var(--spacing-md); display: flex; align-items: center; border-bottom: 1px solid var(--gray-200);">
+                            <i class="fas fa-bell mr-3" style="color: var(--gray-500); font-size: 20px;"></i>
+                            <span style="flex: 1;">通知設定</span>
+                            <i class="fas fa-chevron-right" style="color: var(--gray-400); font-size: 14px;"></i>
+                        </div>
+                        <div style="padding: var(--spacing-md); display: flex; align-items: center; border-bottom: 1px solid var(--gray-200);">
+                            <i class="fas fa-lock mr-3" style="color: var(--gray-500); font-size: 20px;"></i>
+                            <span style="flex: 1;">プライバシー設定</span>
+                            <i class="fas fa-chevron-right" style="color: var(--gray-400); font-size: 14px;"></i>
+                        </div>
+                        <div style="padding: var(--spacing-md); display: flex; align-items: center; border-bottom: 1px solid var(--gray-200);">
+                            <i class="fas fa-question-circle mr-3" style="color: var(--gray-500); font-size: 20px;"></i>
+                            <span style="flex: 1;">ヘルプ・サポート</span>
+                            <i class="fas fa-chevron-right" style="color: var(--gray-400); font-size: 14px;"></i>
+                        </div>
+                        <div style="padding: var(--spacing-md); display: flex; align-items: center;">
+                            <i class="fas fa-sign-out-alt mr-3" style="color: var(--gray-500); font-size: 20px;"></i>
+                            <span style="flex: 1;">ログアウト</span>
+                            <i class="fas fa-chevron-right" style="color: var(--gray-400); font-size: 14px;"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mb-6" style="color: var(--mid-gray); font-size: 12px;">
+                    STYLEFY v1.0.0
+                </div>
+            </div>
+        </div>
+        
+        <!-- プラン選択画面 -->
+        <div id="plans-screen" class="screen">
+            <div class="header">
+                <div class="flex items-center">
+                    <button class="btn-icon mr-3">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h1 class="header-title">プラン選択</h1>
+                </div>
+            </div>
+            
+            <div class="container">
+                <p class="text-center mb-4" style="color: var(--gray-600);">
+                    あなたに最適なプランを選んでください
+                </p>
+                
+                <div class="card mb-4" style="position: relative; border: 2px solid var(--accent-color); padding: var(--spacing-xl);">
+                    <div style="position: absolute; top: -10px; right: 10px; background-color: var(--accent-color); color: white; font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 4px;">
+                        人気
+                    </div>
+                    
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 style="font-weight: 700; font-size: 20px; color: var(--dark-gray);">プレミアムプラン</h3>
+                        <div class="badge badge-warning">30日間無料</div>
+                    </div>
+                    
+                    <div style="font-size: 28px; font-weight: 700; color: var(--dark-gray); margin: 16px 0;">
+                        ¥480<span style="font-size: 16px; font-weight: 500; color: var(--gray-600);">/月</span>
+                    </div>
+                    
+                    <ul style="list-style: none; padding: 0; margin: 20px 0;">
+                        <li style="margin-bottom: 12px; display: flex; align-items: center; color: var(--gray-700);">
+                            <i class="fas fa-check mr-3" style="color: var(--success-color); font-size: 16px;"></i>
+                            AIスタイリスト相談 無制限
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center; color: var(--gray-700);">
+                            <i class="fas fa-check mr-3" style="color: var(--success-color); font-size: 16px;"></i>
+                            バーチャル試着 無制限
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center; color: var(--gray-700);">
+                            <i class="fas fa-check mr-3" style="color: var(--success-color); font-size: 16px;"></i>
+                            アイテム保存容量 無制限
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center; color: var(--gray-700);">
+                            <i class="fas fa-check mr-3" style="color: var(--success-color); font-size: 16px;"></i>
+                            パーソナルLOOKBOOK
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center; color: var(--gray-700);">
+                            <i class="fas fa-check mr-3" style="color: var(--success-color); font-size: 16px;"></i>
+                            詳細な体型パラメータ調整
+                        </li>
+                        <li style="display: flex; align-items: center; color: var(--gray-700);">
+                            <i class="fas fa-check mr-3" style="color: var(--success-color); font-size: 16px;"></i>
+                            買い物同行サービス 20%オフ
+                        </li>
+                    </ul>
+                    
+                    <button class="btn btn-primary w-full">このプランを選択</button>
+                </div>
+                
+                <div class="card mb-4" style="padding: var(--spacing-xl);">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 style="font-weight: 700; font-size: 20px; color: var(--dark-gray);">ライトプラン</h3>
+                        <div class="badge badge-warning">30日間無料</div>
+                    </div>
+                    
+                    <div style="font-size: 28px; font-weight: 700; color: var(--dark-gray); margin: 16px 0;">
+                        ¥280<span style="font-size: 16px; font-weight: 500; color: var(--gray-600);">/月</span>
+                    </div>
+                    
+                    <ul style="list-style: none; padding: 0; margin: 20px 0;">
+                        <li style="margin-bottom: 12px; display: flex; align-items: center; color: var(--gray-700);">
+                            <i class="fas fa-check mr-3" style="color: var(--success-color); font-size: 16px;"></i>
+                            AIスタイリスト相談 月10回
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center; color: var(--gray-700);">
+                            <i class="fas fa-check mr-3" style="color: var(--success-color); font-size: 16px;"></i>
+                            バーチャル試着 月10回
+                        </li>
+                        <li style="margin-bottom: 12px; display: flex; align-items: center; color: var(--gray-700);">
+                            <i class="fas fa-check mr-3" style="color: var(--success-color); font-size: 16px;"></i>
+                            アイテム保存容量 100点
+                        </li>
+                        <li style="display: flex; align-items: center; color: var(--gray-700);">
+                            <i class="fas fa-check mr-3" style="color: var(--success-color); font-size: 16px;"></i>
+                            パーソナルLOOKBOOK
+                        </li>
+                    </ul>
+                    
+                    <button class="btn btn-secondary w-full">このプランを選択</button>
+                </div>
+                
+                <div class="text-center mb-6">
+                    <button class="btn btn-text">プランを比較</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ナビゲーションバー -->
+        <div class="nav-bar">
+            <div class="nav-item active" onclick="switchScreen('home-screen')">
+                <i class="fas fa-home nav-icon"></i>
+                <span class="nav-label">ホーム</span>
+            </div>
+            <div class="nav-item" onclick="switchScreen('tryon-screen')">
+                <i class="fas fa-tshirt nav-icon"></i>
+                <span class="nav-label">仮装試着</span>
+            </div>
+            <div class="nav-item" onclick="switchScreen('closet-screen')">
+                <i class="fas fa-archive nav-icon"></i>
+                <span class="nav-label">Myクローゼット</span>
+            </div>
+            <div class="nav-item" onclick="switchScreen('mypage-screen')">
+                <i class="fas fa-user nav-icon"></i>
+                <span class="nav-label">アカウント</span>
+            </div>
+        </div>
+        
+        <!-- モーダル - プラン比較 -->
+        <div id="plan-comparison-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">プラン比較</h3>
+                    <button class="modal-close" onclick="closeModal('plan-comparison-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--gray-200);">
+                                <th style="text-align: left; padding: var(--spacing-sm) var(--spacing-md); font-weight: 600;">機能</th>
+                                <th style="text-align: center; padding: var(--spacing-sm) var(--spacing-md); font-weight: 600;">無料プラン</th>
+                                <th style="text-align: center; padding: var(--spacing-sm) var(--spacing-md); font-weight: 600;">ライト</th>
+                                <th style="text-align: center; padding: var(--spacing-sm) var(--spacing-md); font-weight: 600;">プレミアム</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--gray-200);">
+                                <td style="padding: var(--spacing-sm) var(--spacing-md);">相談回数</td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);">1日5回</td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);">月10回</td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);">無制限</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--gray-200);">
+                                <td style="padding: var(--spacing-sm) var(--spacing-md);">試着回数</td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);">1日5回</td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);">月10回</td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);">無制限</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--gray-200);">
+                                <td style="padding: var(--spacing-sm) var(--spacing-md);">アイテム保存容量</td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);">30点まで</td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);">100点</td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);">無制限</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--gray-200);">
+                                <td style="padding: var(--spacing-sm) var(--spacing-md);">パーソナルLOOKBOOK</td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);"><i class="fas fa-times" style="color: var(--accent-color);"></i></td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);"><i class="fas fa-check" style="color: var(--success-color);"></i></td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);"><i class="fas fa-check" style="color: var(--success-color);"></i></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--gray-200);">
+                                <td style="padding: var(--spacing-sm) var(--spacing-md);">詳細体型パラメータ</td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);"><i class="fas fa-times" style="color: var(--accent-color);"></i></td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);"><i class="fas fa-times" style="color: var(--accent-color);"></i></td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);"><i class="fas fa-check" style="color: var(--success-color);"></i></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: var(--spacing-sm) var(--spacing-md);">買い物同行割引</td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);"><i class="fas fa-times" style="color: var(--accent-color);"></i></td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);"><i class="fas fa-times" style="color: var(--accent-color);"></i></td>
+                                <td style="text-align: center; padding: var(--spacing-sm) var(--spacing-md);">20%オフ</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="btn btn-primary w-full mt-4">プレミアムを選択</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- アイテム保存制限モーダル -->
+        <div id="storage-limit-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">保存容量が制限に近づいています</h3>
+                    <button class="modal-close" onclick="closeModal('storage-limit-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-exclamation-circle" style="font-size: 48px; color: var(--accent-color);"></i>
+                    </div>
+                    <p class="mb-4" style="text-align: center;">
+                        無料プランの保存容量残りは<strong>3点</strong>です。<br>
+                        プレミアムにアップグレードして、無制限の保存容量をお楽しみください。
+                    </p>
+                    <div style="height: 6px; background-color: var(--gray-200); border-radius: 3px; overflow: hidden; margin-bottom: 20px;">
+                        <div style="width: 90%; height: 100%; background-color: var(--accent-color);"></div>
+                    </div>
+                    <button class="btn btn-primary w-full mb-3">プレミアムにアップグレード</button>
+                    <button class="btn btn-text w-full" onclick="closeModal('storage-limit-modal')">後で</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 骨格ウェーブ画面 -->
+        <div id="wave-screen" class="screen">
+            <div class="header">
+                <h1 class="header-title">骨格ウェーブ</h1>
+            </div>
+            
+            <div class="container">
+                <!-- ユーザー情報 -->
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center">
+                        <div style="width: 36px; height: 36px; background-color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: 500;">A</div>
+                        <div class="ml-2">
+                            <h2 style="font-weight: 500; font-size: 16px;">Aikoさん</h2>
+                        </div>
+                    </div>
+                    <div class="badge badge-primary" style="font-size: 11px;">骨格ウェーブ</div>
+                </div>
+                
+                <!-- メイン画像フォーカス -->
+                <div class="card-item mb-4" style="border-radius: var(--radius-large);">
+                    <div style="position: relative;">
+                        <img src="images/シンプルニット.png" alt="今日のおすすめコーデ" style="width: 100%; height: 420px; object-fit: cover; border-radius: var(--radius-large) var(--radius-large) 0 0;">
+                        <div style="position: absolute; bottom: 16px; right: 16px; background-color: var(--primary-color); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                            <span style="font-size: 18px;">96%</span>
+                        </div>
+                    </div>
+                    <div style="padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-md);">
+                        <h3 style="font-weight: 600; font-size: 18px; margin-bottom: 8px;">シンプルニット</h3>
+                        <div class="flex">
+                            <button class="btn btn-secondary" style="flex: 1; margin-right: var(--spacing-sm); font-size: 14px; height: 40px;">
+                                <i class="fas fa-tshirt mr-1"></i> 試着
+                            </button>
+                            <button class="btn btn-primary" style="flex: 1; font-size: 14px; height: 40px;" onclick="openModal('storage-limit-modal')">
+                                <i class="fas fa-heart mr-1"></i> 保存
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 骨格ウェーブ画面のAIスタイリスト相談部分 -->
+                <div style="position: relative; margin-bottom: var(--spacing-lg);">
+                    <input type="text" class="input-field" style="padding-right: 50px; padding-left: 50px; border-radius: var(--radius-full);" placeholder="AIスタイリストに相談">
+                    <i class="fas fa-comment-alt" style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--primary-color);"></i>
+                    <button class="btn-icon" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); box-shadow: none; width: 36px; height: 36px;">
+                        <i class="fas fa-paper-plane" style="color: var(--primary-color);"></i>
+                    </button>
+                </div>
+                
+                <!-- 保存アイテム残量インジケーター -->
+                <div style="margin-top: auto;">
+                    <div class="flex items-center justify-between" style="margin-bottom: 6px;">
+                        <span style="font-size: 12px; color: var(--gray-600);">保存容量</span>
+                        <span style="font-size: 12px; color: var(--gray-600);">18/30</span>
+                    </div>
+                    <div style="height: 4px; background-color: var(--gray-200); border-radius: 2px; overflow: hidden;">
+                        <div style="width: 60%; height: 100%; background-color: var(--accent-color);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 骨格ナチュラル画面 -->
+        <div id="natural-screen" class="screen">
+            <div class="header">
+                <h1 class="header-title">骨格ナチュラル</h1>
+            </div>
+            
+            <div class="container">
+                <!-- ユーザー情報 -->
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center">
+                        <div style="width: 36px; height: 36px; background-color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: 500;">A</div>
+                        <div class="ml-2">
+                            <h2 style="font-weight: 500; font-size: 16px;">Aikoさん</h2>
+                        </div>
+                    </div>
+                    <div class="badge badge-primary" style="font-size: 11px;">骨格ナチュラル</div>
+                </div>
+                
+                <!-- メイン画像フォーカス -->
+                <div class="card-item mb-4" style="border-radius: var(--radius-large);">
+                    <div style="position: relative;">
+                        <img src="images/カジュアルデニム.png" alt="今日のおすすめコーデ" style="width: 100%; height: 420px; object-fit: cover; border-radius: var(--radius-large) var(--radius-large) 0 0;">
+                        <div style="position: absolute; bottom: 16px; right: 16px; background-color: var(--primary-color); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                            <span style="font-size: 18px;">94%</span>
+                        </div>
+                    </div>
+                    <div style="padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-md);">
+                        <h3 style="font-weight: 600; font-size: 18px; margin-bottom: 8px;">カジュアルデニム</h3>
+                        <div class="flex">
+                            <button class="btn btn-secondary" style="flex: 1; margin-right: var(--spacing-sm); font-size: 14px; height: 40px;">
+                                <i class="fas fa-tshirt mr-1"></i> 試着
+                            </button>
+                            <button class="btn btn-primary" style="flex: 1; font-size: 14px; height: 40px;" onclick="openModal('storage-limit-modal')">
+                                <i class="fas fa-heart mr-1"></i> 保存
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 骨格ナチュラル画面のAIスタイリスト相談部分 -->
+                <div style="position: relative; margin-bottom: var(--spacing-lg);">
+                    <input type="text" class="input-field" style="padding-right: 50px; padding-left: 50px; border-radius: var(--radius-full);" placeholder="AIスタイリストに相談">
+                    <i class="fas fa-comment-alt" style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--primary-color);"></i>
+                    <button class="btn-icon" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); box-shadow: none; width: 36px; height: 36px;">
+                        <i class="fas fa-paper-plane" style="color: var(--primary-color);"></i>
+                    </button>
+                </div>
+                
+                <!-- 保存アイテム残量インジケーター -->
+                <div style="margin-top: auto;">
+                    <div class="flex items-center justify-between" style="margin-bottom: 6px;">
+                        <span style="font-size: 12px; color: var(--gray-600);">保存容量</span>
+                        <span style="font-size: 12px; color: var(--gray-600);">23/30</span>
+                    </div>
+                    <div style="height: 4px; background-color: var(--gray-200); border-radius: 2px; overflow: hidden;">
+                        <div style="width: 76%; height: 100%; background-color: var(--accent-color);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Myクローゼット画面 -->
+        <div id="closet-screen" class="screen">
+            <div class="header">
+                <h1 class="header-title">Myクローゼット</h1>
+            </div>
+            
+            <div class="container">
+                <!-- アップロードボタン -->
+                <div class="flex justify-between items-center mb-4">
+                    <h2 style="font-weight: 600; font-size: 18px;">私の服</h2>
+                    <label for="file-upload" class="btn-icon" style="background-color: var(--primary-color); color: white;">
+                        <i class="fas fa-plus"></i>
+                    </label>
+                    <input id="file-upload" type="file" accept="image/*" style="display: none;" multiple>
+                </div>
+                
+                <!-- カテゴリタブ -->
+                <div style="overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; white-space: nowrap; margin-bottom: var(--spacing-lg);">
+                    <div style="display: inline-block; padding: 8px 16px; margin-right: 8px; background-color: var(--primary-color); color: white; border-radius: 20px; font-size: 14px;">すべて</div>
+                    <div style="display: inline-block; padding: 8px 16px; margin-right: 8px; background-color: white; color: var(--dark-gray); border-radius: 20px; font-size: 14px; border: 1px solid var(--gray-200);">トップス</div>
+                    <div style="display: inline-block; padding: 8px 16px; margin-right: 8px; background-color: white; color: var(--dark-gray); border-radius: 20px; font-size: 14px; border: 1px solid var(--gray-200);">アウター</div>
+                    <div style="display: inline-block; padding: 8px 16px; margin-right: 8px; background-color: white; color: var(--dark-gray); border-radius: 20px; font-size: 14px; border: 1px solid var(--gray-200);">ボトムス</div>
+                    <div style="display: inline-block; padding: 8px 16px; margin-right: 8px; background-color: white; color: var(--dark-gray); border-radius: 20px; font-size: 14px; border: 1px solid var(--gray-200);">ワンピース</div>
+                </div>
+                
+                <!-- 服のグリッド -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-sm); margin-bottom: var(--spacing-lg);">
+                    <div class="card-item" style="aspect-ratio: 1/1; position: relative;">
+                        <img src="images/ベージュテーラードコート.png" alt="私の服1" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-medium);">
+                        <div style="position: absolute; bottom: 5px; right: 5px; background-color: var(--primary-color); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                            <i class="fas fa-ellipsis-h" style="font-size: 12px;"></i>
+                        </div>
+                    </div>
+                    <div class="card-item" style="aspect-ratio: 1/1; position: relative;">
+                        <img src="images/カジュアルデニム.png" alt="私の服2" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-medium);">
+                        <div style="position: absolute; bottom: 5px; right: 5px; background-color: var(--primary-color); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                            <i class="fas fa-ellipsis-h" style="font-size: 12px;"></i>
+                        </div>
+                    </div>
+                    <div class="card-item" style="aspect-ratio: 1/1; position: relative;">
+                        <img src="images/シンプルニット.png" alt="私の服3" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-medium);">
+                        <div style="position: absolute; bottom: 5px; right: 5px; background-color: var(--primary-color); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                            <i class="fas fa-ellipsis-h" style="font-size: 12px;"></i>
+                        </div>
+                    </div>
+                    <div class="card-item" style="aspect-ratio: 1/1; position: relative;">
+                        <img src="images/トレンチコート.png" alt="私の服4" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-medium);">
+                        <div style="position: absolute; bottom: 5px; right: 5px; background-color: var(--primary-color); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                            <i class="fas fa-ellipsis-h" style="font-size: 12px;"></i>
+                        </div>
+                    </div>
+                    <div class="card-item" style="aspect-ratio: 1/1; border: 2px dashed var(--gray-300); border-radius: var(--radius-medium); display: flex; align-items: center; justify-content: center; background-color: white;">
+                        <label for="file-upload-2" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;">
+                            <i class="fas fa-plus" style="font-size: 24px; color: var(--gray-500); margin-bottom: 8px;"></i>
+                            <span style="font-size: 12px; color: var(--gray-500);">追加</span>
+                        </label>
+                        <input id="file-upload-2" type="file" accept="image/*" style="display: none;" multiple>
+                    </div>
+                </div>
+                
+                <!-- コーディネート履歴 -->
+                <h2 style="font-weight: 600; font-size: 18px; margin-bottom: var(--spacing-md);">過去のコーディネート</h2>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-lg);">
+                    <div class="card-item">
+                        <div style="position: relative;">
+                            <img src="images/ベージュテーラードコート.png" alt="コーデ履歴1" style="width: 100%; aspect-ratio: 1/1.3; object-fit: cover;">
+                            <div style="position: absolute; top: 8px; right: 8px; background-color: white; color: var(--dark-gray); font-size: 11px; padding: 2px 8px; border-radius: 10px;">
+                                6月10日
+                            </div>
+                        </div>
+                        <div style="padding: var(--spacing-sm);">
+                            <p style="font-size: 14px; font-weight: 500;">お出かけコーデ</p>
+                        </div>
+                    </div>
+                    <div class="card-item">
+                        <div style="position: relative;">
+                            <img src="images/シンプルニット.png" alt="コーデ履歴2" style="width: 100%; aspect-ratio: 1/1.3; object-fit: cover;">
+                            <div style="position: absolute; top: 8px; right: 8px; background-color: white; color: var(--dark-gray); font-size: 11px; padding: 2px 8px; border-radius: 10px;">
+                                5月28日
+                            </div>
+                        </div>
+                        <div style="padding: var(--spacing-sm);">
+                            <p style="font-size: 14px; font-weight: 500;">オフィスカジュアル</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 保存容量 -->
+                <div class="card mb-4" style="background-color: var(--gray-100); border: none;">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 style="font-weight: 600; font-size: 16px;">保存容量</h3>
+                        <span style="font-size: 14px; font-weight: 500;">27/30</span>
+                    </div>
+                    <div style="height: 6px; background-color: var(--gray-200); border-radius: 3px; overflow: hidden; margin-bottom: 10px;">
+                        <div style="width: 90%; height: 100%; background-color: var(--accent-color);"></div>
+                    </div>
+                    <button class="btn btn-primary w-full" style="font-size: 14px; height: 40px;">容量アップグレード</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 画面切り替えの状態を管理するための変数
+        let currentScreen = 'splash-screen';
+        let previousScreen = '';
+        
+        // ページの読み込み完了時に実行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 3秒後にウェルカム画面に自動遷移
+            setTimeout(function() {
+                switchScreen('welcome-screen');
+            }, 3000);
+            
+            // ボタンイベントのセットアップ
+            setupButtonEvents();
+            
+            // ファイルアップロードイベントの設定
+            setupFileUpload();
+        });
+        
+        // 画面を切り替える関数
+        function switchScreen(screenId) {
+            // 現在の画面を記録
+            previousScreen = currentScreen;
+            currentScreen = screenId;
+            
+            // 全ての画面を非表示にする
+            document.querySelectorAll('.screen').forEach(function(screen) {
+                screen.classList.remove('active');
+            });
+            
+            // 指定された画面を表示
+            document.getElementById(screenId).classList.add('active');
+            
+            // ナビゲーションの状態を更新
+            updateNavigation(screenId);
+        }
+        
+        // ナビゲーションの状態を更新
+        function updateNavigation(screenId) {
+            // ナビゲーションアイテムのアクティブ状態をリセット
+            document.querySelectorAll('.nav-item').forEach(function(item) {
+                item.classList.remove('active');
+            });
+            
+            // 現在の画面に対応するナビゲーションアイテムをアクティブにする
+            if (screenId === 'home-screen' || screenId === 'wave-screen' || screenId === 'natural-screen') {
+                document.querySelector('.nav-item:nth-child(1)').classList.add('active');
+            } else if (screenId === 'tryon-screen') {
+                document.querySelector('.nav-item:nth-child(2)').classList.add('active');
+            } else if (screenId === 'closet-screen') {
+                document.querySelector('.nav-item:nth-child(3)').classList.add('active');
+            } else if (screenId === 'mypage-screen' || screenId === 'plans-screen') {
+                document.querySelector('.nav-item:nth-child(4)').classList.add('active');
+            }
+        }
+        
+        // 戻る処理
+        function goBack() {
+            if (previousScreen) {
+                switchScreen(previousScreen);
+            }
+        }
+        
+        // モーダルを開く
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+        
+        // モーダルを閉じる
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+        
+        // 骨格タイプを選択する関数
+        function selectBodyType(type) {
+            // すべての選択状態をリセット
+            document.getElementById('straight-select').innerHTML = '';
+            document.getElementById('wave-select').innerHTML = '';
+            document.getElementById('natural-select').innerHTML = '';
+            
+            document.getElementById('straight-select').style.backgroundColor = 'transparent';
+            document.getElementById('wave-select').style.backgroundColor = 'transparent';
+            document.getElementById('natural-select').style.backgroundColor = 'transparent';
+            
+            document.getElementById('straight-select').style.border = '2px solid var(--gray-300)';
+            document.getElementById('wave-select').style.border = '2px solid var(--gray-300)';
+            document.getElementById('natural-select').style.border = '2px solid var(--gray-300)';
+            
+            // 選択された骨格タイプをマーク
+            const selectedElement = document.getElementById(type + '-select');
+            selectedElement.style.backgroundColor = 'var(--primary-color)';
+            selectedElement.style.border = '2px solid var(--primary-color)';
+            selectedElement.innerHTML = '<i class="fas fa-check" style="font-size: 12px; color: white;"></i>';
+            
+            // 次へボタンをアクティブに
+            const nextButton = document.querySelector('#diagnosis-screen .btn-primary');
+            nextButton.disabled = false;
+            nextButton.style.opacity = '1';
+        }
+        
+        // ファイルアップロード処理
+        function setupFileUpload() {
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            
+            fileInputs.forEach(function(input) {
+                input.addEventListener('change', function(e) {
+                    if (e.target.files.length > 0) {
+                        // ここでは実際のアップロード処理は実装しませんが、
+                        // 実際のアプリでは以下のようなロジックを実装します
+                        // const formData = new FormData();
+                        // for (let i = 0; i < e.target.files.length; i++) {
+                        //   formData.append('files[]', e.target.files[i]);
+                        // }
+                        // fetch('/api/upload', {
+                        //   method: 'POST',
+                        //   body: formData
+                        // })
+                        
+                        // アップロード成功の表示
+                        alert(e.target.files.length + '枚の写真がアップロードされました。');
+                    }
+                });
+            });
+        }
+        
+        // アイテムを保存する関数
+        function saveItem(itemName) {
+            // この実装はモックアップなので、実際のデータ保存は行わない
+            // 容量が制限に近づいていることを示すモーダルを表示
+            openModal('storage-limit-modal');
+            
+            // 実際のアプリでは以下のようなロジックを実装
+            /*
+            const currentUser = getCurrentUser();
+            if (currentUser.isFreePlan && currentUser.savedItems >= 28) {
+                // 残り3点未満の場合は警告を表示
+                openModal('storage-limit-modal');
+            } else if (currentUser.isFreePlan && currentUser.savedItems >= 30) {
+                // 容量の上限に達した場合はエラーを表示
+                showError('保存容量の上限に達しました。プレミアムプランにアップグレードすると無制限に保存できます。');
+            } else {
+                // 問題なければアイテムを保存
+                saveItemToDatabase(itemName, currentUser.id);
+                showSuccess('アイテムを保存しました');
+            }
+            */
+        }
+        
+        // 各種ボタンのイベントをセットアップ
+        function setupButtonEvents() {
+            // 骨格診断をはじめるボタン
+            document.querySelector('#welcome-screen .btn-primary').addEventListener('click', function() {
+                switchScreen('diagnosis-screen');
+            });
+            
+            // 骨格診断の「次へ」ボタン
+            document.querySelector('#diagnosis-screen .btn-primary').addEventListener('click', function() {
+                switchScreen('result-screen');
+            });
+            
+            // 診断結果からアカウント登録へ
+            document.querySelector('#result-screen .btn-primary').addEventListener('click', function() {
+                switchScreen('signup-screen');
+            });
+            
+            // アカウント登録からホーム画面へ
+            document.querySelector('#signup-screen .btn-primary').addEventListener('click', function() {
+                switchScreen('home-screen');
+            });
+            
+            // 戻るボタン
+            document.querySelectorAll('.btn-icon .fa-arrow-left').forEach(function(backButton) {
+                backButton.parentElement.addEventListener('click', goBack);
+            });
+            
+            // マイページのアップグレードボタン
+            document.querySelector('#mypage-screen .btn-primary').addEventListener('click', function() {
+                switchScreen('plans-screen');
+            });
+            
+            // プラン比較ボタン
+            document.querySelector('#plans-screen .btn-text').addEventListener('click', function() {
+                openModal('plan-comparison-modal');
+            });
+            
+            // 試着画面の保存ボタン
+            document.querySelector('#tryon-screen .btn-primary').addEventListener('click', function() {
+                saveItem('ベージュコート');
+            });
+            
+            // ストレージ制限モーダルのアップグレードボタン
+            document.querySelector('#storage-limit-modal .btn-primary').addEventListener('click', function() {
+                closeModal('storage-limit-modal');
+                switchScreen('plans-screen');
+            });
+            
+            // 骨格タイプ切り替えボタン（診断結果画面に追加）
+            // 本来はDBから取得するが、モックアップではボタンとして実装
+            document.querySelector('#mypage-screen').insertAdjacentHTML('beforeend', `
+                <div class="modal" id="bodytype-switch-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title">骨格タイプを選択</h3>
+                            <button class="modal-close" onclick="closeModal('bodytype-switch-modal')">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <button class="btn btn-secondary w-full mb-3" onclick="switchScreen('home-screen'); closeModal('bodytype-switch-modal')">骨格ストレート</button>
+                            <button class="btn btn-secondary w-full mb-3" onclick="switchScreen('wave-screen'); closeModal('bodytype-switch-modal')">骨格ウェーブ</button>
+                            <button class="btn btn-secondary w-full" onclick="switchScreen('natural-screen'); closeModal('bodytype-switch-modal')">骨格ナチュラル</button>
+                        </div>
+                    </div>
+                </div>
+            `);
+            
+            // 骨格タイプ切り替えボタン
+            document.querySelector('#mypage-screen .flex .badge').addEventListener('click', function() {
+                openModal('bodytype-switch-modal');
+            });
+        }
+    </script>
+</body>
+</html>
